@@ -10,23 +10,19 @@
 #define ECHO_PIN  16
 static const uint TEMPO_MAX_MS = 50;
 
-// Variáveis de “escopo de arquivo” (static), para uso pelas ISRs
-static volatile bool s_subidaOk     = false; // se borda de subida do Echo ocorreu
-static volatile bool s_descidaOk    = false; // se borda de descida do Echo ocorreu
-static volatile bool s_falhaPend    = false; // flag: falha detectada (para imprimir fora da ISR)
+static volatile bool s_subidaOk     = false;
+static volatile bool s_descidaOk    = false; 
+static volatile bool s_falhaPend    = false; 
 static volatile absolute_time_t s_tInicio;
 static volatile absolute_time_t s_tFim;
 
-// Callback do alarme para detectar falha se a borda de subida não chegou a tempo
 static int64_t callback_falha(alarm_id_t id, void *user_data) {
-    // Se ainda não houve borda de subida, marcamos falha
     if (!s_subidaOk) {
         s_falhaPend = true;
     }
-    return 0; // Não repete
+    return 0; 
 }
 
-// Interrupção do pino Echo
 static void isr_echo(uint gpio, uint32_t eventos) {
     if (eventos & GPIO_IRQ_EDGE_RISE) {
         s_tInicio  = get_absolute_time();
@@ -89,12 +85,8 @@ int main() {
             gpio_put(TRIG_PIN, 0);
 
             add_alarm_in_ms(TEMPO_MAX_MS, callback_falha, NULL, false);
-
-            // Esperamos ~1s entre cada tentativa
-            // No meio tempo, a ISR pode mudar s_descidaOk e o alarme pode marcar s_falhaPend
             sleep_ms(1000);
 
-            // Fora da ISR, verificamos se houve falha
             if (s_falhaPend) {
                 datetime_t agora;
                 rtc_get_datetime(&agora);
@@ -112,9 +104,6 @@ int main() {
                        dist_cm);
             }
             else {
-                // Caso não tenha havido descida mas também não marcou falha, 
-                // é sinal de que o Echo pode ter chegado tarde, etc.
-                // Ajuste se quiser tratar esse caso separadamente.
                 printf("Sem borda de descida confirmada.\n");
             }
         }
