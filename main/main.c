@@ -62,17 +62,17 @@ int main() {
     );
 
     bool medindo = false;
-    printf("Use 's' p/ iniciar, 'p' p/ parar.\n");
+    printf("Use 's' para iniciar, 'p' para parar.\n");
 
     while (true) {
         int c = getchar_timeout_us(500);
         if (c == 's') {
             medindo = true;
-            printf("Medições habilitadas.\n");
+            printf("Start.\n");
         }
         else if (c == 'p') {
             medindo = false;
-            printf("Medições pausadas.\n");
+            printf("Stop.\n");
         }
 
         if (medindo) {
