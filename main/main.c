@@ -76,6 +76,8 @@ int main() {
         }
 
         if (medindo) {
+            sleep_ms(500);
+
             s_subidaOk  = false;
             s_descidaOk = false;
             s_falhaPend = false;
@@ -85,7 +87,11 @@ int main() {
             gpio_put(TRIG_PIN, 0);
 
             add_alarm_in_ms(TEMPO_MAX_MS, callback_falha, NULL, false);
-            sleep_ms(1000);
+            //sleep_ms(1000);
+
+            while(!s_descidaOk && !s_falhaPend) {
+                sleep_ms(1);
+            }
 
             if (s_falhaPend) {
                 datetime_t agora;
